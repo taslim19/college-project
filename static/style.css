@@ -106,24 +106,30 @@ body {
     color: var(--text-white);
 }
 
-/* ========== SIDEBAR (Icon-Only) ========== */
+/* ========== SIDEBAR (Hover-to-Expand) ========== */
 .sidebar {
     position: fixed;
     left: var(--spacing-lg);
     top: 50%;
     transform: translateY(-50%);
-    width: 70px;
-    background: var(--glass-bg);
+    width: 80px;
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-medium);
     box-shadow: var(--shadow-soft);
     padding: var(--spacing-md);
-    z-index: 100;
+    z-index: 1000;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.sidebar:hover {
+    width: 260px;
 }
 
 .sidebar-nav {
@@ -131,45 +137,90 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
+    width: 100%;
+}
+
+.sidebar-nav li {
+    width: 100%;
 }
 
 .sidebar-nav a {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 50px;
+    gap: var(--spacing-md);
+    width: 100%;
     height: 50px;
+    padding: 0 16px;
     color: var(--text-secondary);
     text-decoration: none;
     border-radius: var(--radius-small);
     transition: all 0.3s ease;
     position: relative;
-}
-
-.sidebar-nav a:hover,
-.sidebar-nav a.active {
-    background: var(--accent-soft);
-    color: var(--accent-terracotta);
+    white-space: nowrap;
 }
 
 .sidebar-nav a i {
     font-size: 1.5rem;
+    min-width: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
 }
 
-.sidebar-nav a.active::after {
-    content: '';
-    position: absolute;
-    left: -18px;
-    width: 3px;
-    height: 30px;
+.sidebar-nav a .nav-label {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
+                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: inherit;
+}
+
+.sidebar:hover .sidebar-nav a .nav-label {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sidebar-nav a:hover {
+    background: var(--accent-soft);
+    color: var(--accent-terracotta);
+}
+
+.sidebar-nav a.active {
+    background: rgba(217, 119, 87, 0.15);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.sidebar-nav a.active i {
     background: var(--accent-terracotta);
-    border-radius: 0 3px 3px 0;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-small);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(217, 119, 87, 0.3);
+}
+
+.sidebar-nav a.active .nav-label {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Logout item styling */
+.sidebar-nav li:last-child {
+    margin-top: auto;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(217, 119, 87, 0.1);
 }
 
 /* ========== CONTENT WITH SIDEBAR ========== */
 .content-with-sidebar {
-    margin-left: 100px;
+    margin-left: 120px;
     padding: var(--spacing-lg) 0;
+    transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ========== HEADER ========== */
@@ -604,15 +655,50 @@ textarea.form-control {
         transform: none;
         flex-direction: row;
         justify-content: space-around;
+        padding: var(--spacing-sm);
+    }
+    
+    .sidebar:hover {
+        width: auto;
     }
     
     .sidebar-nav {
         flex-direction: row;
         width: 100%;
+        gap: var(--spacing-xs);
     }
     
-    .sidebar-nav a.active::after {
-        display: none;
+    .sidebar-nav li {
+        flex: 1;
+    }
+    
+    .sidebar-nav a {
+        flex-direction: column;
+        height: auto;
+        padding: var(--spacing-xs);
+        gap: 4px;
+    }
+    
+    .sidebar-nav a i {
+        font-size: 1.2rem;
+    }
+    
+    .sidebar-nav a .nav-label {
+        opacity: 1;
+        transform: none;
+        font-size: 0.7rem;
+        text-align: center;
+    }
+    
+    .sidebar-nav a.active i {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .sidebar-nav li:last-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
     }
     
     .stats-grid {

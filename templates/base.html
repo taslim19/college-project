@@ -13,37 +13,43 @@
 <body>
     <div class="main-container">
         {% if session.logged_in %}
-        <!-- Icon-Only Sidebar Navigation -->
+        <!-- Hover-to-Expand Sidebar Navigation -->
         <aside class="sidebar">
             <ul class="sidebar-nav">
                 <li>
                     <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}" title="Dashboard">
                         <i class="bi bi-speedometer2"></i>
+                        <span class="nav-label">Dashboard</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('register') }}" class="{% if request.endpoint == 'register' %}active{% endif %}" title="Register Visitor">
+                    <a href="{{ url_for('register') }}" class="{% if request.endpoint == 'register' %}active{% endif %}" title="New Registration">
                         <i class="bi bi-person-plus"></i>
+                        <span class="nav-label">New Registration</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('checkin') }}" class="{% if request.endpoint == 'checkin' %}active{% endif %}" title="Check-In">
+                    <a href="{{ url_for('checkin') }}" class="{% if request.endpoint == 'checkin' %}active{% endif %}" title="Check-In (Arrivals)">
                         <i class="bi bi-box-arrow-in-right"></i>
+                        <span class="nav-label">Check-In (Arrivals)</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('checkout') }}" class="{% if request.endpoint == 'checkout' %}active{% endif %}" title="Check-Out">
+                    <a href="{{ url_for('checkout') }}" class="{% if request.endpoint == 'checkout' %}active{% endif %}" title="Check-Out (Departures)">
                         <i class="bi bi-box-arrow-right"></i>
+                        <span class="nav-label">Check-Out (Departures)</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('reports') }}" class="{% if request.endpoint == 'reports' %}active{% endif %}" title="Reports">
+                    <a href="{{ url_for('reports') }}" class="{% if request.endpoint == 'reports' %}active{% endif %}" title="History & Reports">
                         <i class="bi bi-file-earmark-text"></i>
+                        <span class="nav-label">History & Reports</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ url_for('logout') }}" title="Logout">
                         <i class="bi bi-box-arrow-left"></i>
+                        <span class="nav-label">Logout</span>
                     </a>
                 </li>
             </ul>
