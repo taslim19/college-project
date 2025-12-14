@@ -122,8 +122,7 @@
                                         <i class="bi bi-x"></i>
                                     </a>
                                 {% elif appointment.status == 'APPROVED' %}
-                                    {% set appt_date = appointment.appointment_date if appointment.appointment_date else date.today() %}
-                                    {% if appt_date <= date.today() %}
+                                    {% if appointment.appointment_date and appointment.appointment_date <= today %}
                                         <a href="{{ url_for('convert_appointment', appointment_id=appointment.appointment_id) }}" 
                                            class="btn btn-primary" 
                                            style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none;"

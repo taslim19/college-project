@@ -464,25 +464,28 @@ def book_appointment():
         appointment_date = request.form.get('appointment_date')
         appointment_time = request.form.get('appointment_time')
         
+        # Pass today's date for template
+        today = date.today().strftime('%Y-%m-%d')
+        
         # Input validation
         if not all([visitor_name, contact, purpose, person_to_meet, appointment_date, appointment_time]):
             flash('Please fill all fields', 'error')
-            return render_template('book_appointment.html')
+            return render_template('book_appointment.html', today=today)
         
         # Validate contact number
         if not contact.isdigit() or len(contact) < 10:
             flash('Please enter a valid contact number', 'error')
-            return render_template('book_appointment.html')
+            return render_template('book_appointment.html', today=today)
         
         # Validate appointment date (should be in the future)
         try:
             appt_date = datetime.strptime(appointment_date, '%Y-%m-%d').date()
             if appt_date < date.today():
                 flash('Appointment date must be today or in the future', 'error')
-                return render_template('book_appointment.html')
+                return render_template('book_appointment.html', today=today)
         except ValueError:
             flash('Invalid date format', 'error')
-            return render_template('book_appointment.html')
+            return render_template('book_appointment.html', today=today)
         
         conn = get_db_connection()
         if conn:
@@ -505,7 +508,9 @@ def book_appointment():
             except Error as e:
                 flash(f'Error submitting appointment: {str(e)}', 'error')
         
-    return render_template('book_appointment.html')
+    # Pass date to template for min date validation
+    today = date.today().strftime('%Y-%m-%d')
+    return render_template('book_appointment.html', today=today)
 
 
 @app.route('/appointments')
@@ -540,9 +545,12 @@ def appointments():
         cursor.close()
         conn.close()
     
+    # Pass today's date for template comparison
+    today_date = date.today()
     return render_template('appointments.html', 
                          appointments=appointments_list,
-                         status_filter=status_filter)
+                         status_filter=status_filter,
+                         today=today_date)
 
 
 @app.route('/approve-appointment/<int:appointment_id>')
