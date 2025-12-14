@@ -3,29 +3,48 @@
 {% block title %}Check-In - Visitor Management System{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6 mx-auto">
-        <div class="card">
-            <div class="card-header">
-                <h4><i class="bi bi-box-arrow-in-right"></i> Visitor Check-In</h4>
+<div class="content-with-sidebar">
+    <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+        <div class="glass-card-header">
+            <h4>
+                <i class="bi bi-box-arrow-in-right"></i>
+                Visitor Check-In
+            </h4>
+            <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.9rem;">
+                Enter the visitor ID to record check-in time
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('checkin') }}">
+            <div class="form-group">
+                <label for="visitor_id" class="form-label">
+                    <i class="bi bi-123"></i> Visitor ID <span class="required">*</span>
+                </label>
+                <input type="number" 
+                       class="form-control" 
+                       id="visitor_id" 
+                       name="visitor_id" 
+                       placeholder="Enter unique visitor ID" 
+                       required 
+                       autofocus
+                       style="font-size: 1.2rem; text-align: center; font-weight: 600;">
+                <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+                    <i class="bi bi-info-circle"></i> Enter the unique visitor ID to check in
+                </small>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('checkin') }}">
-                    <div class="mb-3">
-                        <label for="visitor_id" class="form-label">Visitor ID <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" id="visitor_id" name="visitor_id" 
-                               placeholder="Enter visitor ID" required autofocus>
-                        <small class="form-text text-muted">Enter the unique visitor ID to check in</small>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle"></i> Check-In Visitor
-                        </button>
-                    </div>
-                </form>
-            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                <i class="bi bi-check-circle"></i>
+                <span>Check-In Visitor</span>
+            </button>
+        </form>
+
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-full">
+                <i class="bi bi-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </a>
         </div>
     </div>
 </div>
 {% endblock %}
-

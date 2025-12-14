@@ -3,61 +3,103 @@
 {% block title %}Register Visitor - Visitor Management System{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 mx-auto">
-        <div class="card">
-            <div class="card-header">
-                <h4><i class="bi bi-person-plus"></i> Visitor Registration</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('register') }}">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">Visitor Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="name" name="name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                            <input type="tel" class="form-control" id="contact" name="contact" 
-                                   pattern="[0-9]{10,15}" required>
-                            <small class="form-text text-muted">Enter 10-15 digits</small>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="id_proof" class="form-label">ID Proof <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="id_proof" name="id_proof" 
-                                   placeholder="Aadhar, PAN, Driving License, etc." required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="person_to_meet" class="form-label">Person to Meet <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="person_to_meet" name="person_to_meet" required>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="purpose" class="form-label">Purpose of Visit <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="purpose" name="purpose" rows="3" required></textarea>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle"></i> Register Visitor
-                        </button>
-                    </div>
-                </form>
-            </div>
+<div class="{% if session.logged_in %}content-with-sidebar{% else %}centered-container{% endif %}">
+    <div class="glass-card" style="max-width: {% if session.logged_in %}100%{% else %}800px{% endif %}; margin: 0 auto;">
+        <div class="glass-card-header">
+            <h4>
+                <i class="bi bi-person-plus"></i>
+                Visitor Registration
+            </h4>
+            <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.9rem;">
+                Fill in all the required information to register a new visitor
+            </p>
         </div>
-        <div class="text-center mt-3">
-            {% if session.logged_in %}
-                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+
+        <form method="POST" action="{{ url_for('register') }}">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="name" class="form-label">
+                        Visitor Name <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="name" 
+                           name="name" 
+                           placeholder="Enter visitor's full name" 
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="contact" class="form-label">
+                        Contact Number <span class="required">*</span>
+                    </label>
+                    <input type="tel" 
+                           class="form-control" 
+                           id="contact" 
+                           name="contact" 
+                           pattern="[0-9]{10,15}" 
+                           placeholder="10-15 digits" 
+                           required>
+                    <small class="text-muted" style="font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+                        Enter 10-15 digits
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_proof" class="form-label">
+                        ID Proof <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="id_proof" 
+                           name="id_proof" 
+                           placeholder="Aadhar, PAN, Driving License, etc." 
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="person_to_meet" class="form-label">
+                        Person to Meet <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="person_to_meet" 
+                           name="person_to_meet" 
+                           placeholder="Name of the person to meet" 
+                           required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="purpose" class="form-label">
+                    Purpose of Visit <span class="required">*</span>
+                </label>
+                <textarea class="form-control" 
+                          id="purpose" 
+                          name="purpose" 
+                          rows="4" 
+                          placeholder="Describe the purpose of visit..." 
+                          required></textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <i class="bi bi-check-circle"></i>
+                    <span>Register Visitor</span>
+                </button>
+                {% if session.logged_in %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Back to Dashboard</span>
                 </a>
-            {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-box-arrow-in-right"></i> Admin Login
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-outline">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Admin Login</span>
                 </a>
-            {% endif %}
-        </div>
+                {% endif %}
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
-
