@@ -47,6 +47,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ url_for('appointments') }}" class="{% if request.endpoint == 'appointments' or request.endpoint == 'approve_appointment' or request.endpoint == 'reject_appointment' or request.endpoint == 'convert_appointment' %}active{% endif %}" title="Appointments">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="nav-label">Appointments</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ url_for('logout') }}" title="Logout">
                         <i class="bi bi-box-arrow-left"></i>
                         <span class="nav-label">Logout</span>

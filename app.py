@@ -8,6 +8,7 @@ Future Enhancements (mentioned for viva):
 - Biometric verification
 - Email notifications
 - Visitor photo capture
+- Appointment module with email/SMS notifications
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
@@ -43,31 +44,84 @@ def get_db_connection():
 
 def init_database():
     """
-    Initialize database with default admin if not exists.
-    Creates admin user with username: admin, password: admin123
+    Initialize database with tables and default admin if not exists.
+    Creates appointments table and admin user automatically.
     """
     try:
         conn = get_db_connection()
         if conn:
             cursor = conn.cursor()
-            # Check if admin exists
-            cursor.execute("SELECT COUNT(*) FROM admin WHERE username = 'admin'")
-            count = cursor.fetchone()[0]
             
-            if count == 0:
-                # Create default admin
-                hashed_password = generate_password_hash('admin123')
-                cursor.execute(
-                    "INSERT INTO admin (username, password) VALUES (%s, %s)",
-                    ('admin', hashed_password)
-                )
+            # Create appointments table if it doesn't exist
+            try:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS appointments (
+                        appointment_id INT AUTO_INCREMENT PRIMARY KEY,
+                        visitor_name VARCHAR(100) NOT NULL,
+                        contact VARCHAR(20) NOT NULL,
+                        purpose VARCHAR(200) NOT NULL,
+                        person_to_meet VARCHAR(100) NOT NULL,
+                        appointment_date DATE NOT NULL,
+                        appointment_time TIME NOT NULL,
+                        status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
                 conn.commit()
-                print("Default admin created: username='admin', password='admin123'")
+                print("Appointments table checked/created successfully")
+            except Error as e:
+                print(f"Note: Appointments table may already exist: {e}")
+            
+            # Add appointment_id column to visitors table if it doesn't exist
+            try:
+                cursor.execute("""
+                    SELECT COLUMN_NAME 
+                    FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'visitors' 
+                    AND COLUMN_NAME = 'appointment_id'
+                """)
+                if not cursor.fetchone():
+                    cursor.execute("ALTER TABLE visitors ADD COLUMN appointment_id INT NULL")
+                    # Add foreign key constraint if appointments table exists
+                    try:
+                        cursor.execute("""
+                            ALTER TABLE visitors 
+                            ADD CONSTRAINT fk_appointment 
+                            FOREIGN KEY (appointment_id) 
+                            REFERENCES appointments(appointment_id) 
+                            ON DELETE SET NULL
+                        """)
+                    except Error:
+                        # Foreign key might already exist or appointments table doesn't exist yet
+                        pass
+                    conn.commit()
+                    print("Added appointment_id column to visitors table")
+            except Error as e:
+                print(f"Note: appointment_id column may already exist: {e}")
+            
+            # Check if admin exists
+            try:
+                cursor.execute("SELECT COUNT(*) FROM admin WHERE username = 'admin'")
+                count = cursor.fetchone()[0]
+                
+                if count == 0:
+                    # Create default admin
+                    hashed_password = generate_password_hash('admin123')
+                    cursor.execute(
+                        "INSERT INTO admin (username, password) VALUES (%s, %s)",
+                        ('admin', hashed_password)
+                    )
+                    conn.commit()
+                    print("Default admin created: username='admin', password='admin123'")
+            except Error as e:
+                print(f"Note: Admin table may not exist yet. Run schema.sql first: {e}")
             
             cursor.close()
             conn.close()
     except Error as e:
         print(f"Error initializing database: {e}")
+        print("Please ensure the database and base tables (admin, visitors) exist. Run schema.sql if needed.")
 
 
 # Initialize database on startup
@@ -391,6 +445,229 @@ def reports():
                          report_type=report_type,
                          selected_date=selected_date,
                          selected_month=selected_month)
+
+
+# ==================== APPOINTMENT MODULE ====================
+
+@app.route('/book-appointment', methods=['GET', 'POST'])
+def book_appointment():
+    """
+    Visitor-facing appointment booking page.
+    Allows visitors to submit appointment requests.
+    No authentication required.
+    """
+    if request.method == 'POST':
+        visitor_name = request.form.get('visitor_name')
+        contact = request.form.get('contact')
+        purpose = request.form.get('purpose')
+        person_to_meet = request.form.get('person_to_meet')
+        appointment_date = request.form.get('appointment_date')
+        appointment_time = request.form.get('appointment_time')
+        
+        # Input validation
+        if not all([visitor_name, contact, purpose, person_to_meet, appointment_date, appointment_time]):
+            flash('Please fill all fields', 'error')
+            return render_template('book_appointment.html')
+        
+        # Validate contact number
+        if not contact.isdigit() or len(contact) < 10:
+            flash('Please enter a valid contact number', 'error')
+            return render_template('book_appointment.html')
+        
+        # Validate appointment date (should be in the future)
+        try:
+            appt_date = datetime.strptime(appointment_date, '%Y-%m-%d').date()
+            if appt_date < date.today():
+                flash('Appointment date must be today or in the future', 'error')
+                return render_template('book_appointment.html')
+        except ValueError:
+            flash('Invalid date format', 'error')
+            return render_template('book_appointment.html')
+        
+        conn = get_db_connection()
+        if conn:
+            try:
+                cursor = conn.cursor()
+                # Insert appointment request with PENDING status
+                cursor.execute(
+                    """INSERT INTO appointments (visitor_name, contact, purpose, person_to_meet, 
+                       appointment_date, appointment_time, status) 
+                       VALUES (%s, %s, %s, %s, %s, %s, 'PENDING')""",
+                    (visitor_name, contact, purpose, person_to_meet, appointment_date, appointment_time)
+                )
+                conn.commit()
+                appointment_id = cursor.lastrowid
+                cursor.close()
+                conn.close()
+                
+                flash(f'Appointment request submitted successfully! Your Appointment ID: {appointment_id}. Please wait for admin approval.', 'success')
+                return redirect(url_for('book_appointment'))
+            except Error as e:
+                flash(f'Error submitting appointment: {str(e)}', 'error')
+        
+    return render_template('book_appointment.html')
+
+
+@app.route('/appointments')
+@login_required
+def appointments():
+    """
+    Admin page to view all appointment requests.
+    Shows appointments with filters for status.
+    """
+    status_filter = request.args.get('status', 'all')
+    
+    conn = get_db_connection()
+    appointments_list = []
+    
+    if conn:
+        cursor = conn.cursor(dictionary=True)
+        
+        if status_filter == 'all':
+            cursor.execute(
+                """SELECT * FROM appointments 
+                   ORDER BY appointment_date DESC, appointment_time DESC, created_at DESC"""
+            )
+        else:
+            cursor.execute(
+                """SELECT * FROM appointments 
+                   WHERE status = %s 
+                   ORDER BY appointment_date DESC, appointment_time DESC, created_at DESC""",
+                (status_filter,)
+            )
+        
+        appointments_list = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    
+    return render_template('appointments.html', 
+                         appointments=appointments_list,
+                         status_filter=status_filter)
+
+
+@app.route('/approve-appointment/<int:appointment_id>')
+@login_required
+def approve_appointment(appointment_id):
+    """
+    Admin route to approve an appointment request.
+    Updates appointment status to APPROVED.
+    """
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE appointments SET status = 'APPROVED' WHERE appointment_id = %s",
+                (appointment_id,)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+            flash('Appointment approved successfully!', 'success')
+        except Error as e:
+            flash(f'Error approving appointment: {str(e)}', 'error')
+    
+    return redirect(url_for('appointments'))
+
+
+@app.route('/reject-appointment/<int:appointment_id>')
+@login_required
+def reject_appointment(appointment_id):
+    """
+    Admin route to reject an appointment request.
+    Updates appointment status to REJECTED.
+    """
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE appointments SET status = 'REJECTED' WHERE appointment_id = %s",
+                (appointment_id,)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+            flash('Appointment rejected.', 'info')
+        except Error as e:
+            flash(f'Error rejecting appointment: {str(e)}', 'error')
+    
+    return redirect(url_for('appointments'))
+
+
+@app.route('/convert-appointment/<int:appointment_id>')
+@login_required
+def convert_appointment(appointment_id):
+    """
+    Convert an approved appointment into a visitor entry.
+    Only approved appointments can be converted.
+    Creates a visitor record with status INSIDE and links appointment_id.
+    """
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            
+            # Check if appointment exists and is approved
+            cursor.execute(
+                "SELECT * FROM appointments WHERE appointment_id = %s AND status = 'APPROVED'",
+                (appointment_id,)
+            )
+            appointment = cursor.fetchone()
+            
+            if not appointment:
+                flash('Appointment not found or not approved. Only approved appointments can be converted.', 'error')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('appointments'))
+            
+            # Check if appointment date is today or in the past
+            appt_date = appointment['appointment_date']
+            if appt_date > date.today():
+                flash('Cannot convert appointment. Appointment date is in the future.', 'error')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('appointments'))
+            
+            # Check if already converted (optional: prevent duplicate conversion)
+            cursor.execute(
+                "SELECT * FROM visitors WHERE appointment_id = %s",
+                (appointment_id,)
+            )
+            existing_visitor = cursor.fetchone()
+            
+            if existing_visitor:
+                flash('This appointment has already been converted to a visitor entry.', 'warning')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('appointments'))
+            
+            # Convert appointment to visitor
+            # Note: ID proof is required for visitors, so we use a default value
+            # In production, you might want to collect ID proof during appointment booking
+            id_proof = f"Appointment-{appointment_id}"  # Placeholder ID proof
+            
+            # Combine appointment date and time for check-in
+            check_in_datetime = datetime.combine(appointment['appointment_date'], appointment['appointment_time'])
+            
+            cursor.execute(
+                """INSERT INTO visitors (name, contact, id_proof, purpose, person_to_meet, 
+                   check_in_time, status, appointment_id) 
+                   VALUES (%s, %s, %s, %s, %s, %s, 'INSIDE', %s)""",
+                (appointment['visitor_name'], appointment['contact'], id_proof, 
+                 appointment['purpose'], appointment['person_to_meet'], 
+                 check_in_datetime, appointment_id)
+            )
+            conn.commit()
+            visitor_id = cursor.lastrowid
+            cursor.close()
+            conn.close()
+            
+            flash(f'Appointment converted successfully! Visitor ID: {visitor_id}', 'success')
+        except Error as e:
+            flash(f'Error converting appointment: {str(e)}', 'error')
+    
+    return redirect(url_for('appointments'))
 
 
 # ==================== ERROR HANDLERS ====================

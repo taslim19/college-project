@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Appointments - Visitor Management System{% endblock %}
+
+{% block content %}
+<div class="content-with-sidebar">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1>
+                <i class="bi bi-calendar-check" style="color: #d97757; margin-right: 0.5rem;"></i>
+                Appointment Management
+            </h1>
+            <p>View, approve, reject, and convert appointment requests</p>
+        </div>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="glass-pad" style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+            <span style="color: #64748b; font-weight: 600;">Filter:</span>
+            <a href="{{ url_for('appointments', status='all') }}" 
+               class="btn {% if status_filter == 'all' %}btn-primary{% else %}btn-outline{% endif %}"
+               style="text-decoration: none;">
+                <i class="bi bi-list-ul"></i>
+                <span>All</span>
+            </a>
+            <a href="{{ url_for('appointments', status='PENDING') }}" 
+               class="btn {% if status_filter == 'PENDING' %}btn-primary{% else %}btn-outline{% endif %}"
+               style="text-decoration: none;">
+                <i class="bi bi-clock"></i>
+                <span>Pending</span>
+            </a>
+            <a href="{{ url_for('appointments', status='APPROVED') }}" 
+               class="btn {% if status_filter == 'APPROVED' %}btn-primary{% else %}btn-outline{% endif %}"
+               style="text-decoration: none;">
+                <i class="bi bi-check-circle"></i>
+                <span>Approved</span>
+            </a>
+            <a href="{{ url_for('appointments', status='REJECTED') }}" 
+               class="btn {% if status_filter == 'REJECTED' %}btn-primary{% else %}btn-outline{% endif %}"
+               style="text-decoration: none;">
+                <i class="bi bi-x-circle"></i>
+                <span>Rejected</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Appointments List -->
+    <div class="glass-pad">
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                Appointment Requests
+            </h2>
+            <p style="color: #64748b; font-size: 0.95rem;">
+                Total: <strong style="color: #d97757;">{{ appointments|length }}</strong> appointment(s)
+            </p>
+        </div>
+
+        {% if appointments %}
+        <div style="overflow-x: auto;">
+            <table class="glass-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Visitor</th>
+                        <th>Contact</th>
+                        <th>Person to Meet</th>
+                        <th>Purpose</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>
+                            <strong style="color: #d97757;">#{{ appointment.appointment_id }}</strong>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar">
+                                    {{ appointment.visitor_name[0].upper() }}
+                                </div>
+                                <span style="color: #1e293b; font-weight: 500;">{{ appointment.visitor_name }}</span>
+                            </div>
+                        </td>
+                        <td style="color: #64748b;">{{ appointment.contact }}</td>
+                        <td style="color: #64748b;">{{ appointment.person_to_meet }}</td>
+                        <td style="color: #64748b; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ appointment.purpose }}
+                        </td>
+                        <td style="color: #64748b;">
+                            <div>{{ appointment.appointment_date.strftime('%Y-%m-%d') if appointment.appointment_date else 'N/A' }}</div>
+                            <div style="font-size: 0.85rem; color: #94a3b8;">
+                                {{ appointment.appointment_time.strftime('%I:%M %p') if appointment.appointment_time else 'N/A' }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if appointment.status == 'PENDING' %}
+                                <span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #d97706; border: 1px solid rgba(251, 191, 36, 0.2);">PENDING</span>
+                            {% elif appointment.status == 'APPROVED' %}
+                                <span class="badge badge-inside">APPROVED</span>
+                            {% else %}
+                                <span class="badge badge-exited">REJECTED</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                {% if appointment.status == 'PENDING' %}
+                                    <a href="{{ url_for('approve_appointment', appointment_id=appointment.appointment_id) }}" 
+                                       class="btn btn-primary" 
+                                       style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none;"
+                                       onclick="return confirm('Approve this appointment?');">
+                                        <i class="bi bi-check"></i>
+                                    </a>
+                                    <a href="{{ url_for('reject_appointment', appointment_id=appointment.appointment_id) }}" 
+                                       class="btn btn-outline" 
+                                       style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none; border-color: #dc2626; color: #dc2626;"
+                                       onclick="return confirm('Reject this appointment?');">
+                                        <i class="bi bi-x"></i>
+                                    </a>
+                                {% elif appointment.status == 'APPROVED' %}
+                                    {% set appt_date = appointment.appointment_date if appointment.appointment_date else date.today() %}
+                                    {% if appt_date <= date.today() %}
+                                        <a href="{{ url_for('convert_appointment', appointment_id=appointment.appointment_id) }}" 
+                                           class="btn btn-primary" 
+                                           style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none;"
+                                           onclick="return confirm('Convert this approved appointment to a visitor entry?');">
+                                            <i class="bi bi-arrow-right-circle"></i>
+                                            <span>Convert</span>
+                                        </a>
+                                    {% else %}
+                                        <span style="color: #94a3b8; font-size: 0.85rem;">Future date</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-calendar-x"></i>
+            <p>No appointments found{% if status_filter != 'all' %} with status "{{ status_filter }}"{% endif %}.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

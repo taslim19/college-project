@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Book Appointment - Visitor Management System{% endblock %}
+
+{% block content %}
+<div class="centered-container">
+    <div class="glass-pad" style="max-width: 700px; margin: 0 auto;">
+        <div class="page-header" style="border-bottom: 1px solid rgba(217, 119, 87, 0.1); padding-bottom: 1.5rem; margin-bottom: 2rem;">
+            <div>
+                <h1 style="font-size: 2rem; font-weight: 700; color: #1e293b; letter-spacing: -0.5px;">
+                    <i class="bi bi-calendar-check" style="color: #d97757; margin-right: 0.5rem;"></i>
+                    Book an Appointment
+                </h1>
+                <p style="color: #64748b; margin-top: 0.5rem;">
+                    Submit an appointment request. Admin will review and approve your request.
+                </p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('book_appointment') }}">
+            <div class="form-section">
+                <div class="section-header">VISITOR INFORMATION</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="visitor_name" class="form-label">
+                            Your Name <span class="required">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="visitor_name" 
+                               name="visitor_name" 
+                               placeholder="Enter your full name" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact" class="form-label">
+                            Contact Number <span class="required">*</span>
+                        </label>
+                        <input type="tel" 
+                               class="form-control" 
+                               id="contact" 
+                               name="contact" 
+                               pattern="[0-9]{10,15}" 
+                               placeholder="10-15 digits" 
+                               required>
+                        <small style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+                            Enter 10-15 digits
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-header">APPOINTMENT DETAILS</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="person_to_meet" class="form-label">
+                            Person to Meet <span class="required">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="person_to_meet" 
+                               name="person_to_meet" 
+                               placeholder="Name of the person to meet" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appointment_date" class="form-label">
+                            Appointment Date <span class="required">*</span>
+                        </label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="appointment_date" 
+                               name="appointment_date" 
+                               min="{{ date.today().strftime('%Y-%m-%d') }}"
+                               required>
+                        <small style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+                            Select today or a future date
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appointment_time" class="form-label">
+                            Appointment Time <span class="required">*</span>
+                        </label>
+                        <input type="time" 
+                               class="form-control" 
+                               id="appointment_time" 
+                               name="appointment_time" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose" class="form-label">
+                        Purpose of Visit <span class="required">*</span>
+                    </label>
+                    <textarea class="form-control" 
+                              id="purpose" 
+                              name="purpose" 
+                              rows="4" 
+                              placeholder="Describe the purpose of your visit..." 
+                              required></textarea>
+                </div>
+            </div>
+
+            <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid rgba(217, 119, 87, 0.1);">
+                <button type="submit" class="btn btn-primary btn-large btn-full">
+                    <i class="bi bi-calendar-plus"></i>
+                    <span>Submit Appointment Request</span>
+                </button>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('register') }}" style="color: #d97757; text-decoration: none; font-size: 0.9rem;">
+                        <i class="bi bi-person-plus"></i> Register as Walk-in Visitor
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
