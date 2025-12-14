@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Error - Visitor Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h1 class="display-1">{{ error_code }}</h1>
+                <h3>{{ error_message }}</h3>
+                <p class="text-muted">Oops! Something went wrong.</p>
+                <a href="{{ url_for('dashboard') if session.logged_in else url_for('login') }}" 
+                   class="btn btn-primary">
+                    <i class="bi bi-house"></i> Go to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

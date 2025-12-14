@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Register Visitor - Visitor Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-person-plus"></i> Visitor Registration</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Visitor Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="contact" name="contact" 
+                                   pattern="[0-9]{10,15}" required>
+                            <small class="form-text text-muted">Enter 10-15 digits</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_proof" class="form-label">ID Proof <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="id_proof" name="id_proof" 
+                                   placeholder="Aadhar, PAN, Driving License, etc." required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="person_to_meet" class="form-label">Person to Meet <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="person_to_meet" name="person_to_meet" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Purpose of Visit <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="purpose" name="purpose" rows="3" required></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Register Visitor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            {% if session.logged_in %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-box-arrow-in-right"></i> Admin Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
