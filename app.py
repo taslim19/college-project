@@ -132,8 +132,8 @@ init_database()
 
 @app.route('/')
 def index():
-    """Redirect to login page"""
-    return redirect(url_for('login'))
+    """Landing page with entry points for admin and visitors"""
+    return render_template('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
