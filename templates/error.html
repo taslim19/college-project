@@ -5,17 +5,17 @@
 {% block content %}
 <div class="centered-container">
     <div class="centered-card" style="text-align: center;">
-        <div style="font-size: 8rem; margin-bottom: 1rem; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
+        <div style="font-size: 6rem; margin-bottom: 1.5rem; color: #d97757; font-weight: 700;">
             {{ error_code }}
         </div>
-        <h2 style="font-size: 2rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
+        <h1 style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; letter-spacing: -0.5px;">
             {{ error_message }}
-        </h2>
-        <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 2rem;">
+        </h1>
+        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 2.5rem;">
             Oops! Something went wrong. Don't worry, it's not your fault.
         </p>
         <a href="{{ url_for('dashboard') if session.logged_in else url_for('login') }}" 
-           class="btn btn-primary">
+           class="btn btn-primary btn-large">
             <i class="bi bi-house"></i>
             <span>Go to Home</span>
         </a>

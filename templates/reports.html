@@ -5,25 +5,23 @@
 {% block content %}
 <div class="content-with-sidebar">
     <!-- Page Header -->
-    <div style="margin-bottom: 2rem;">
-        <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            <i class="bi bi-file-earmark-text"></i> Visitor Reports
-        </h1>
-        <p class="text-muted" style="font-size: 1.1rem;">
-            Generate and view daily or monthly visitor reports
-        </p>
+    <div class="page-header">
+        <div>
+            <h1>
+                <i class="bi bi-file-earmark-text" style="color: #d97757; margin-right: 0.5rem;"></i>
+                Visitor Reports
+            </h1>
+            <p>Generate and view daily or monthly visitor reports</p>
+        </div>
     </div>
 
     <!-- Report Filters -->
-    <div class="glass-card">
-        <div class="glass-card-header">
-            <h4>
-                <i class="bi bi-funnel"></i>
-                Filter Reports
-            </h4>
+    <div class="glass-pad">
+        <div style="margin-bottom: 1.5rem;">
+            <div class="section-header">FILTER REPORTS</div>
         </div>
 
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
             <a href="{{ url_for('reports', type='daily', date=selected_date) }}" 
                class="btn {% if report_type == 'daily' %}btn-primary{% else %}btn-outline{% endif %}"
                style="text-decoration: none;">
@@ -76,21 +74,18 @@
     </div>
 
     <!-- Report Results -->
-    <div class="glass-card">
-        <div class="glass-card-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h4>
-                    <i class="bi bi-list-ul"></i>
-                    {% if report_type == 'daily' %}
-                        Daily Report - {{ selected_date }}
-                    {% else %}
-                        Monthly Report - {{ selected_month }}
-                    {% endif %}
-                </h4>
-                <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.9rem; margin-bottom: 0;">
-                    Total visitors: <strong style="color: #6366f1;">{{ visitors|length }}</strong>
-                </p>
-            </div>
+    <div class="glass-pad">
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                {% if report_type == 'daily' %}
+                    Daily Report - {{ selected_date }}
+                {% else %}
+                    Monthly Report - {{ selected_month }}
+                {% endif %}
+            </h2>
+            <p style="color: #64748b; font-size: 0.95rem;">
+                Total visitors: <strong style="color: #d97757;">{{ visitors|length }}</strong>
+            </p>
         </div>
 
         {% if visitors %}
@@ -113,34 +108,34 @@
                     {% for visitor in visitors %}
                     <tr>
                         <td>
-                            <strong style="color: #6366f1;">#{{ visitor.visitor_id }}</strong>
+                            <strong style="color: #d97757;">#{{ visitor.visitor_id }}</strong>
                         </td>
                         <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
                                 <div class="avatar">
                                     {{ visitor.name[0].upper() }}
                                 </div>
-                                <span style="color: var(--text-primary); font-weight: 500;">{{ visitor.name }}</span>
+                                <span style="color: #1e293b; font-weight: 500;">{{ visitor.name }}</span>
                             </div>
                         </td>
-                        <td>{{ visitor.contact }}</td>
-                        <td>{{ visitor.id_proof }}</td>
-                        <td>{{ visitor.person_to_meet }}</td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <td style="color: #64748b;">{{ visitor.contact }}</td>
+                        <td style="color: #64748b;">{{ visitor.id_proof }}</td>
+                        <td style="color: #64748b;">{{ visitor.person_to_meet }}</td>
+                        <td style="color: #64748b; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             {{ visitor.purpose }}
                         </td>
-                        <td>
+                        <td style="color: #64748b;">
                             {% if visitor.check_in_time %}
                                 {{ visitor.check_in_time.strftime('%Y-%m-%d %H:%M') }}
                             {% else %}
-                                <span class="text-muted">N/A</span>
+                                <span style="color: #94a3b8;">N/A</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td style="color: #64748b;">
                             {% if visitor.check_out_time %}
                                 {{ visitor.check_out_time.strftime('%Y-%m-%d %H:%M') }}
                             {% else %}
-                                <span class="text-muted">—</span>
+                                <span style="color: #94a3b8;">—</span>
                             {% endif %}
                         </td>
                         <td>
@@ -156,9 +151,9 @@
             </table>
         </div>
         {% else %}
-        <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
-            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
-            <p style="font-size: 1.1rem;">No visitors found for the selected period.</p>
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>No visitors found for the selected period.</p>
         </div>
         {% endif %}
     </div>

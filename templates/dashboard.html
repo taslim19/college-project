@@ -5,13 +5,20 @@
 {% block content %}
 <div class="content-with-sidebar">
     <!-- Page Header -->
-    <div style="margin-bottom: 2rem;">
-        <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            Dashboard
-        </h1>
-        <p class="text-muted" style="font-size: 1.1rem;">
-            Welcome back, <strong style="color: #94a3b8;">{{ session.username }}</strong>! Here's what's happening today.
-        </p>
+    <div class="page-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Welcome back, <strong>{{ session.username }}</strong>! Here's what's happening today.</p>
+        </div>
+        <div class="user-profile">
+            <div class="user-avatar">
+                {{ session.username[0].upper() }}
+            </div>
+            <div>
+                <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">{{ session.username }}</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Administrator</div>
+            </div>
+        </div>
     </div>
 
     <!-- Statistics Cards -->
@@ -20,7 +27,7 @@
             <div class="stat-icon">
                 <i class="bi bi-people"></i>
             </div>
-            <div class="stat-title">Visitors Inside</div>
+            <div class="stat-title">Currently Inside</div>
             <div class="stat-value">{{ visitors_inside|length }}</div>
         </div>
 
@@ -36,90 +43,49 @@
             <div class="stat-icon">
                 <i class="bi bi-clock-history"></i>
             </div>
-            <div class="stat-title">Recent Visitors</div>
+            <div class="stat-title">Pre-registered</div>
             <div class="stat-value">{{ recent_visitors|length }}</div>
         </div>
     </div>
 
-    <!-- Visitors Currently Inside -->
-    <div class="glass-card">
-        <div class="glass-card-header">
-            <h4>
-                <i class="bi bi-person-check"></i>
-                Visitors Currently Inside
-            </h4>
-            <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.9rem;">
-                Active visitors in the building right now
-            </p>
+    <!-- Dark Glass Widget (Hero Card) -->
+    <div class="dark-widget">
+        <h3>
+            <i class="bi bi-star"></i>
+            Recent Activity
+        </h3>
+        <p style="margin-bottom: 1rem;">
+            {% if recent_visitors %}
+                Latest visitor: <strong>{{ recent_visitors[0].name }}</strong> checked in at 
+                {% if recent_visitors[0].check_in_time %}
+                    {{ recent_visitors[0].check_in_time.strftime('%I:%M %p') }}
+                {% else %}
+                    N/A
+                {% endif %}
+            {% else %}
+                No recent activity to display.
+            {% endif %}
+        </p>
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <div style="flex: 1; padding: 1rem; background: rgba(255, 255, 255, 0.1); border-radius: 12px;">
+                <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.5rem;">Active Visitors</div>
+                <div style="font-size: 2rem; font-weight: 700;">{{ visitors_inside|length }}</div>
+            </div>
+            <div style="flex: 1; padding: 1rem; background: rgba(255, 255, 255, 0.1); border-radius: 12px;">
+                <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.5rem;">Today's Total</div>
+                <div style="font-size: 2rem; font-weight: 700;">{{ total_today }}</div>
+            </div>
         </div>
-
-        {% if visitors_inside %}
-        <div style="overflow-x: auto;">
-            <table class="glass-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Visitor</th>
-                        <th>Contact</th>
-                        <th>ID Proof</th>
-                        <th>Person to Meet</th>
-                        <th>Purpose</th>
-                        <th>Check-In Time</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for visitor in visitors_inside %}
-                    <tr>
-                        <td>
-                            <strong style="color: #6366f1;">#{{ visitor.visitor_id }}</strong>
-                        </td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="avatar">
-                                    {{ visitor.name[0].upper() }}
-                                </div>
-                                <span style="color: var(--text-primary); font-weight: 500;">{{ visitor.name }}</span>
-                            </div>
-                        </td>
-                        <td>{{ visitor.contact }}</td>
-                        <td>{{ visitor.id_proof }}</td>
-                        <td>{{ visitor.person_to_meet }}</td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            {{ visitor.purpose }}
-                        </td>
-                        <td>
-                            {% if visitor.check_in_time %}
-                                {{ visitor.check_in_time.strftime('%Y-%m-%d %H:%M') }}
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="badge badge-inside">INSIDE</span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
-            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
-            <p style="font-size: 1.1rem;">No visitors currently inside the building.</p>
-        </div>
-        {% endif %}
     </div>
 
-    <!-- Recent Visitor History -->
-    <div class="glass-card">
-        <div class="glass-card-header">
-            <h4>
-                <i class="bi bi-clock-history"></i>
-                Recent Visitor History
-            </h4>
-            <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.9rem;">
-                Last 10 visitor records
+    <!-- Recent Visitors Table -->
+    <div class="glass-pad">
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                Recent Visitors
+            </h2>
+            <p style="color: #64748b; font-size: 0.95rem;">
+                List of recent visitor records
             </p>
         </div>
 
@@ -141,30 +107,30 @@
                     {% for visitor in recent_visitors %}
                     <tr>
                         <td>
-                            <strong style="color: #6366f1;">#{{ visitor.visitor_id }}</strong>
+                            <strong style="color: #d97757;">#{{ visitor.visitor_id }}</strong>
                         </td>
                         <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
                                 <div class="avatar">
                                     {{ visitor.name[0].upper() }}
                                 </div>
-                                <span style="color: var(--text-primary); font-weight: 500;">{{ visitor.name }}</span>
+                                <span style="color: #1e293b; font-weight: 500;">{{ visitor.name }}</span>
                             </div>
                         </td>
-                        <td>{{ visitor.contact }}</td>
-                        <td>{{ visitor.person_to_meet }}</td>
-                        <td>
+                        <td style="color: #64748b;">{{ visitor.contact }}</td>
+                        <td style="color: #64748b;">{{ visitor.person_to_meet }}</td>
+                        <td style="color: #64748b;">
                             {% if visitor.check_in_time %}
                                 {{ visitor.check_in_time.strftime('%Y-%m-%d %H:%M') }}
                             {% else %}
-                                <span class="text-muted">N/A</span>
+                                <span style="color: #94a3b8;">N/A</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td style="color: #64748b;">
                             {% if visitor.check_out_time %}
                                 {{ visitor.check_out_time.strftime('%Y-%m-%d %H:%M') }}
                             {% else %}
-                                <span class="text-muted">—</span>
+                                <span style="color: #94a3b8;">—</span>
                             {% endif %}
                         </td>
                         <td>
@@ -180,11 +146,73 @@
             </table>
         </div>
         {% else %}
-        <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
-            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
-            <p style="font-size: 1.1rem;">No visitor history available.</p>
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>No visitor history available.</p>
         </div>
         {% endif %}
     </div>
+
+    <!-- Visitors Currently Inside -->
+    {% if visitors_inside %}
+    <div class="glass-pad" style="margin-top: 2rem;">
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                Visitors Currently Inside
+            </h2>
+            <p style="color: #64748b; font-size: 0.95rem;">
+                Active visitors in the building right now
+            </p>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="glass-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Visitor</th>
+                        <th>Contact</th>
+                        <th>Person to Meet</th>
+                        <th>Purpose</th>
+                        <th>Check-In Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visitor in visitors_inside %}
+                    <tr>
+                        <td>
+                            <strong style="color: #d97757;">#{{ visitor.visitor_id }}</strong>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar">
+                                    {{ visitor.name[0].upper() }}
+                                </div>
+                                <span style="color: #1e293b; font-weight: 500;">{{ visitor.name }}</span>
+                            </div>
+                        </td>
+                        <td style="color: #64748b;">{{ visitor.contact }}</td>
+                        <td style="color: #64748b;">{{ visitor.person_to_meet }}</td>
+                        <td style="color: #64748b; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ visitor.purpose }}
+                        </td>
+                        <td style="color: #64748b;">
+                            {% if visitor.check_in_time %}
+                                {{ visitor.check_in_time.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                <span style="color: #94a3b8;">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-inside">INSIDE</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
