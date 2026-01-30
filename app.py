@@ -131,8 +131,8 @@ init_database()
 # ==================== AUTHENTICATION ROUTES ====================
 
 @app.route('/')
-def index():
-    """Landing page with entry points for admin and visitors"""
+def home():
+    # This renders the new Landing Page (index.html) we created
     return render_template('index.html')
 
 
