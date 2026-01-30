@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Register Visitor - Visitor Management System{% endblock %}
+{% block title %}Register - EntryFlow{% endblock %}
 
 {% block content %}
 <div class="{% if session.logged_in %}content-with-sidebar{% else %}centered-container{% endif %}">
@@ -8,106 +8,141 @@
         <div class="page-header" style="border-bottom: 1px solid rgba(217, 119, 87, 0.1); padding-bottom: 1.5rem; margin-bottom: 2rem;">
             <div>
                 <h1 style="font-size: 2rem; font-weight: 700; color: #1e293b; letter-spacing: -0.5px;">
-                    <i class="bi bi-person-plus" style="color: #d97757; margin-right: 0.5rem;"></i>
-                    Visitor Registration
+                    <i class="bi bi-stars" style="color: #d97757; margin-right: 0.5rem;"></i>
+                    <span id="header-title">Guest Registration</span>
                 </h1>
                 <p style="color: #64748b; margin-top: 0.5rem;">
-                    Fill in all the required information to register a new visitor
+                    Please select the visit type and fill in your details.
                 </p>
             </div>
         </div>
 
         <form method="POST" action="{{ url_for('register') }}">
+            
+            <!-- 1. NEW: DYNAMIC VISIT TYPE SELECTOR -->
             <div class="form-section">
-                <div class="section-header">VISITOR DETAILS</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="name" class="form-label">
-                            Visitor Name <span class="required">*</span>
-                        </label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="name" 
-                               name="name" 
-                               placeholder="Enter visitor's full name" 
-                               required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="contact" class="form-label">
-                            Contact Number <span class="required">*</span>
-                        </label>
-                        <input type="tel" 
-                               class="form-control" 
-                               id="contact" 
-                               name="contact" 
-                               pattern="[0-9]{10,15}" 
-                               placeholder="10-15 digits" 
-                               required>
-                        <small style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem; display: block;">
-                            Enter 10-15 digits
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="id_proof" class="form-label">
-                            ID Proof <span class="required">*</span>
-                        </label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="id_proof" 
-                               name="id_proof" 
-                               placeholder="Aadhar, PAN, Driving License, etc." 
-                               required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="person_to_meet" class="form-label">
-                            Person to Meet <span class="required">*</span>
-                        </label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="person_to_meet" 
-                               name="person_to_meet" 
-                               placeholder="Name of the person to meet" 
-                               required>
+                <div class="section-header">VISIT CONTEXT</div>
+                <div class="form-group">
+                    <label for="visit_type" class="form-label">Type of Visit</label>
+                    <div style="position: relative;">
+                        <select class="form-control" id="visit_type" onchange="updateFormLabels()">
+                            <option value="office" selected>🏢 Corporate / Office Visit</option>
+                            <option value="clinic">🏥 Medical / Doctor Appointment</option>
+                            <option value="apartment">🏠 Residential / Apartment Guest</option>
+                            <option value="delivery">📦 Delivery / Logistics</option>
+                        </select>
+                        <i class="bi bi-chevron-down" style="position: absolute; right: 15px; top: 18px; color: #d97757; pointer-events: none;"></i>
                     </div>
                 </div>
             </div>
 
             <div class="form-section">
-                <div class="section-header">PURPOSE OF VISIT</div>
+                <div class="section-header">DETAILS</div>
+                <div class="form-grid">
+                    <!-- Name (Always same) -->
+                    <div class="form-group">
+                        <label for="name" class="form-label" id="label_name">Visitor Name <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter full name" required>
+                    </div>
+
+                    <!-- Contact (Always same) -->
+                    <div class="form-group">
+                        <label for="contact" class="form-label">Contact Number <span class="required">*</span></label>
+                        <input type="tel" class="form-control" id="contact" name="contact" pattern="[0-9]{10,15}" placeholder="10-15 digits" required>
+                    </div>
+
+                    <!-- ID Proof (Context Specific) -->
+                    <div class="form-group">
+                        <label for="id_proof" class="form-label" id="label_id">ID Proof <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="id_proof" name="id_proof" placeholder="Aadhar, License, etc." required>
+                    </div>
+
+                    <!-- Host/Doctor/Resident (Context Specific) -->
+                    <div class="form-group">
+                        <label for="person_to_meet" class="form-label" id="label_host">Person to Meet <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="person_to_meet" name="person_to_meet" placeholder="Host Name" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-header">PURPOSE</div>
                 <div class="form-group">
-                    <label for="purpose" class="form-label">
-                        Purpose <span class="required">*</span>
-                    </label>
-                    <textarea class="form-control" 
-                              id="purpose" 
-                              name="purpose" 
-                              rows="4" 
-                              placeholder="Describe the purpose of visit..." 
-                              required></textarea>
+                    <label for="purpose" class="form-label" id="label_purpose">Purpose of Visit <span class="required">*</span></label>
+                    <textarea class="form-control" id="purpose" name="purpose" rows="3" placeholder="Meeting, Interview, etc..." required></textarea>
                 </div>
             </div>
 
             <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid rgba(217, 119, 87, 0.1);">
                 <button type="submit" class="btn btn-primary btn-large btn-full">
                     <i class="bi bi-check-circle"></i>
-                    <span>Check-In Visitor</span>
+                    <span id="btn-text">Check-In Now</span>
                 </button>
+                
                 {% if session.logged_in %}
                 <a href="{{ url_for('dashboard') }}" class="btn btn-outline" style="margin-top: 1rem; width: 100%;">
-                    <i class="bi bi-arrow-left"></i>
-                    <span>Back to Dashboard</span>
+                    <i class="bi bi-arrow-left"></i> <span>Back to Dashboard</span>
                 </a>
                 {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-outline" style="margin-top: 1rem; width: 100%;">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    <span>Admin Login</span>
+                <!-- Updated to go to Home instead of Login -->
+                <a href="{{ url_for('home') }}" class="btn btn-outline" style="margin-top: 1rem; width: 100%;">
+                    <i class="bi bi-house"></i> <span>Back to Home Screen</span>
                 </a>
                 {% endif %}
             </div>
         </form>
     </div>
 </div>
+
+<!-- JAVASCRIPT LOGIC FOR DYNAMIC LABELS -->
+<script>
+    function updateFormLabels() {
+        const type = document.getElementById('visit_type').value;
+        
+        // Elements to update
+        const labelHost = document.getElementById('label_host');
+        const inputHost = document.getElementById('person_to_meet');
+        const labelPurpose = document.getElementById('label_purpose');
+        const inputPurpose = document.getElementById('purpose');
+        const labelName = document.getElementById('label_name');
+        const btnText = document.getElementById('btn-text');
+
+        if (type === 'clinic') {
+            // Clinic Settings
+            labelName.innerHTML = 'Patient Name <span class="required">*</span>';
+            labelHost.innerHTML = 'Consulting Doctor <span class="required">*</span>';
+            inputHost.placeholder = "Dr. Name";
+            labelPurpose.innerHTML = 'Symptoms / Appointment Type <span class="required">*</span>';
+            inputPurpose.placeholder = "Describe symptoms or check-up reason...";
+            btnText.innerText = "Register Patient";
+            
+        } else if (type === 'apartment') {
+            // Apartment Settings
+            labelName.innerHTML = 'Guest Name <span class="required">*</span>';
+            labelHost.innerHTML = 'Resident Name / Flat No <span class="required">*</span>';
+            inputHost.placeholder = "e.g. Flat 402, Mr. Sharma";
+            labelPurpose.innerHTML = 'Reason for Visit';
+            inputPurpose.placeholder = "Family visit, Maintenance, Delivery...";
+            btnText.innerText = "Notify Resident";
+
+        } else if (type === 'delivery') {
+            // Delivery Settings
+            labelName.innerHTML = 'Delivery Agent Name <span class="required">*</span>';
+            labelHost.innerHTML = 'Receiver Name <span class="required">*</span>';
+            inputHost.placeholder = "Who is the package for?";
+            labelPurpose.innerHTML = 'Package Details';
+            inputPurpose.placeholder = "Amazon, Food, Courier ID...";
+            btnText.innerText = "Log Delivery";
+
+        } else {
+            // Default (Office)
+            labelName.innerHTML = 'Visitor Name <span class="required">*</span>';
+            labelHost.innerHTML = 'Host Employee <span class="required">*</span>';
+            inputHost.placeholder = "Who are you meeting?";
+            labelPurpose.innerHTML = 'Purpose of Visit <span class="required">*</span>';
+            inputPurpose.placeholder = "Meeting, Interview, Official work...";
+            btnText.innerText = "Check-In Visitor";
+        }
+    }
+</script>
 {% endblock %}
