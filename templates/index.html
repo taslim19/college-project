@@ -14,7 +14,8 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #fdfbf7 0%, #eddcd2 100%);
             position: relative;
-            overflow: hidden;
+            /* overflow: hidden;  <-- REMOVE THIS LINE */
+            overflow-x: hidden; /* Ensure only horizontal is hidden */
         }
 
         /* Warm Blobs Background */
