@@ -28,7 +28,12 @@
                 <i class="bi bi-people"></i>
             </div>
             <div class="stat-title">Currently Inside</div>
-            <div class="stat-value">{{ visitors_inside|length }}</div>
+            <div class="stat-value-wrapper">
+                <div class="stat-value">{{ visitors_inside|length }}</div>
+                <span class="trend-badge trend-success">
+                    <i class="bi bi-plus-circle"></i> +2 Just now
+                </span>
+            </div>
         </div>
 
         <div class="stat-card">
@@ -36,46 +41,83 @@
                 <i class="bi bi-calendar-day"></i>
             </div>
             <div class="stat-title">Total Today</div>
-            <div class="stat-value">{{ total_today }}</div>
+            <div class="stat-value-wrapper">
+                <div class="stat-value">{{ total_today }}</div>
+                <span class="trend-badge trend-up">
+                    <i class="bi bi-arrow-up"></i> ↑ 12%
+                </span>
+            </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="bi bi-clock-history"></i>
+        <a href="{{ url_for('appointments', status='PENDING') }}" style="text-decoration: none; color: inherit;">
+            <div class="stat-card stat-card-clickable">
+                <div class="stat-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="stat-title">Pre-registered</div>
+                <div class="stat-value-wrapper">
+                    <div class="stat-value">{{ recent_visitors|length }}</div>
+                    <span class="trend-badge trend-pending">
+                        <i class="bi bi-clock"></i> {{ pending_appointments }} Pending
+                    </span>
+                </div>
             </div>
-            <div class="stat-title">Pre-registered</div>
-            <div class="stat-value">{{ recent_visitors|length }}</div>
-        </div>
+        </a>
     </div>
 
     <!-- Dark Glass Widget (Hero Card) -->
-    <div class="dark-widget">
+    <div class="dark-widget recent-activity">
         <h3>
             <i class="bi bi-star"></i>
             Recent Activity
         </h3>
-        <p style="margin-bottom: 1rem;">
-            {% if recent_visitors %}
-                Latest visitor: <strong>{{ recent_visitors[0].name }}</strong> checked in at 
-                {% if recent_visitors[0].check_in_time %}
-                    {{ recent_visitors[0].check_in_time.strftime('%I:%M %p') }}
-                {% else %}
-                    N/A
-                {% endif %}
-            {% else %}
-                No recent activity to display.
-            {% endif %}
-        </p>
-        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-            <div style="flex: 1; padding: 1rem; background: rgba(255, 255, 255, 0.1); border-radius: 12px;">
-                <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.5rem;">Active Visitors</div>
-                <div style="font-size: 2rem; font-weight: 700;">{{ visitors_inside|length }}</div>
-            </div>
-            <div style="flex: 1; padding: 1rem; background: rgba(255, 255, 255, 0.1); border-radius: 12px;">
-                <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.5rem;">Today's Total</div>
-                <div style="font-size: 2rem; font-weight: 700;">{{ total_today }}</div>
-            </div>
+        {% if recent_visitors %}
+        <div style="overflow-x: auto; margin-top: 1.5rem;">
+            <table class="dark-table">
+                <thead>
+                    <tr>
+                        <th>Visitor Name</th>
+                        <th>Purpose</th>
+                        <th>Time In</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visitor in recent_visitors[:5] %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar-small">
+                                    {{ visitor.name[0].upper() }}
+                                </div>
+                                <span style="color: #ffffff; font-weight: 500;">{{ visitor.name }}</span>
+                            </div>
+                        </td>
+                        <td style="color: rgba(255, 255, 255, 0.7);">{{ visitor.purpose }}</td>
+                        <td style="color: rgba(255, 255, 255, 0.7);">
+                            {% if visitor.check_in_time %}
+                                {{ visitor.check_in_time.strftime('%I:%M %p') }}
+                            {% else %}
+                                <span style="color: rgba(255, 255, 255, 0.4);">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if visitor.status == 'INSIDE' %}
+                                <span class="badge badge-inside-dark">Inside</span>
+                            {% else %}
+                                <span class="badge badge-exited-dark">Left</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+        {% else %}
+        <p style="margin-top: 1.5rem; color: rgba(255, 255, 255, 0.6);">
+            No recent activity to display.
+        </p>
+        {% endif %}
     </div>
 
     <!-- Recent Visitors Table -->
@@ -91,42 +133,47 @@
 
         {% if recent_visitors %}
         <div style="overflow-x: auto;">
-            <table class="glass-table">
+            <table class="glass-table premium-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Visitor</th>
                         <th>Contact</th>
                         <th>Person to Meet</th>
                         <th>Check-In</th>
                         <th>Check-Out</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for visitor in recent_visitors %}
                     <tr>
                         <td>
-                            <strong style="color: #d97757;">#{{ visitor.visitor_id }}</strong>
-                        </td>
-                        <td>
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="avatar">
+                                <div class="avatar-premium">
                                     {{ visitor.name[0].upper() }}
                                 </div>
-                                <span style="color: #1e293b; font-weight: 500;">{{ visitor.name }}</span>
+                                <div style="display: flex; flex-direction: column; gap: 2px;">
+                                    <span style="color: #1e293b; font-weight: 500; font-size: 0.95rem;">{{ visitor.name }}</span>
+                                    <span style="color: #94a3b8; font-size: 0.75rem; font-weight: 500;">#{{ visitor.visitor_id }}</span>
+                                </div>
                             </div>
                         </td>
                         <td style="color: #64748b;">{{ visitor.contact }}</td>
-                        <td style="color: #64748b;">{{ visitor.person_to_meet }}</td>
                         <td style="color: #64748b;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="bi bi-person" style="font-size: 0.85rem; opacity: 0.6;"></i>
+                                <span>{{ visitor.person_to_meet }}</span>
+                            </div>
+                        </td>
+                        <td style="color: #64748b; white-space: nowrap;">
                             {% if visitor.check_in_time %}
                                 {{ visitor.check_in_time.strftime('%Y-%m-%d %H:%M') }}
                             {% else %}
                                 <span style="color: #94a3b8;">N/A</span>
                             {% endif %}
                         </td>
-                        <td style="color: #64748b;">
+                        <td style="color: #64748b; white-space: nowrap;">
                             {% if visitor.check_out_time %}
                                 {{ visitor.check_out_time.strftime('%Y-%m-%d %H:%M') }}
                             {% else %}
@@ -135,10 +182,29 @@
                         </td>
                         <td>
                             {% if visitor.status == 'INSIDE' %}
-                                <span class="badge badge-inside">INSIDE</span>
+                                <span class="badge badge-inside-glass">Inside</span>
                             {% else %}
-                                <span class="badge badge-exited">EXITED</span>
+                                <span class="badge badge-exited">Exited</span>
                             {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-dropdown">
+                                <button class="table-action-btn" onclick="toggleDropdown(this)" title="Actions">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    {% if visitor.status == 'INSIDE' %}
+                                        <a href="{{ url_for('quick_checkout', visitor_id=visitor.visitor_id) }}" class="dropdown-item">
+                                            <i class="bi bi-box-arrow-right"></i>
+                                            <span>Check Out</span>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('checkout') }}" class="dropdown-item">
+                                        <i class="bi bi-info-circle"></i>
+                                        <span>View Details</span>
+                                    </a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -215,4 +281,30 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleDropdown(button) {
+        // Close all other dropdowns
+        document.querySelectorAll('.action-dropdown').forEach(dropdown => {
+            if (dropdown !== button.closest('.action-dropdown')) {
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        // Toggle current dropdown
+        const dropdown = button.closest('.action-dropdown');
+        dropdown.classList.toggle('active');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.action-dropdown')) {
+            document.querySelectorAll('.action-dropdown').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -2,71 +2,245 @@
 
 {% block title %}Login - Visitor Management System{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Login Page Specific Styles */
+    .login-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #fdfbf7 0%, #eddcd2 100%);
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Warm Blobs Background */
+    .warm-blobs {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .warm-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.4;
+        animation: float-warm 25s ease-in-out infinite;
+    }
+
+    .blob-coral {
+        width: 600px;
+        height: 600px;
+        background: #ffafbd;
+        top: -200px;
+        left: -200px;
+        animation-delay: 0s;
+    }
+
+    .blob-champagne {
+        width: 500px;
+        height: 500px;
+        background: #ffc3a0;
+        bottom: -150px;
+        right: -150px;
+        animation-delay: 8s;
+    }
+
+    @keyframes float-warm {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+        33% {
+            transform: translate(40px, -40px) scale(1.1);
+        }
+        66% {
+            transform: translate(-30px, 30px) scale(0.9);
+        }
+    }
+
+    /* Card Animation */
+    .centered-card {
+        animation: fade-in-up 0.6s ease-out;
+    }
+
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Enhanced Input Styling */
+    .form-control {
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    /* Password Input Wrapper */
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: var(--accent-terracotta);
+    }
+
+    /* Back Link */
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: var(--accent-terracotta);
+    }
+
+    /* Default Credentials Badge */
+    .credentials-badge {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 8px 16px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: #64748b;
+        text-align: center;
+    }
+
+    .credentials-badge strong {
+        color: var(--accent-terracotta);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="centered-container">
-    <div class="centered-card">
-        <div class="text-center mb-4">
-            <div style="font-size: 3.5rem; margin-bottom: 1.5rem; color: #d97757;">
-                <i class="bi bi-shield-lock"></i>
-            </div>
-            <h1 style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; letter-spacing: -0.5px;">
-                Admin Login
-            </h1>
-            <p style="color: #64748b; font-size: 1rem;">
-                Welcome back! Please login to continue.
-            </p>
-        </div>
+<div class="login-page">
+    <!-- Warm Blobs Background -->
+    <div class="warm-blobs">
+        <div class="warm-blob blob-coral"></div>
+        <div class="warm-blob blob-champagne"></div>
+    </div>
 
-        <form method="POST" action="{{ url_for('login') }}">
-            <div class="form-group">
-                <label for="username" class="form-label">
-                    Username
-                </label>
-                <input type="text" 
-                       class="form-control" 
-                       id="username" 
-                       name="username" 
-                       placeholder="Enter your username" 
-                       required 
-                       autofocus>
+    <div class="centered-container" style="position: relative; z-index: 1;">
+        <div class="centered-card">
+            <div class="text-center mb-4">
+                <div style="font-size: 3.5rem; margin-bottom: 1.5rem; color: #d97757;">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <h1 style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; letter-spacing: -0.5px;">
+                    Admin Login
+                </h1>
+                <p style="color: #64748b; font-size: 1rem;">
+                    Welcome back! Please login to continue.
+                </p>
             </div>
 
-            <div class="form-group">
-                <label for="password" class="form-label">
-                    Password
-                </label>
-                <input type="password" 
-                       class="form-control" 
-                       id="password" 
-                       name="password" 
-                       placeholder="Enter your password" 
-                       required>
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        Username
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="username" 
+                           name="username" 
+                           placeholder="Enter your username" 
+                           required 
+                           autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        Password
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" 
+                               class="form-control" 
+                               id="password" 
+                               name="password" 
+                               placeholder="Enter your password" 
+                               required>
+                        <button type="button" class="password-toggle" id="togglePassword" aria-label="Toggle password visibility">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Login</span>
+                </button>
+            </form>
+
+            <div class="text-center">
+                <div class="credentials-badge">
+                    <i class="bi bi-info-circle"></i> Default: <strong>admin</strong> / <strong>admin123</strong>
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-full">
-                <i class="bi bi-box-arrow-in-right"></i>
-                <span>Login</span>
-            </button>
-        </form>
-
-        <div class="text-center mt-4" style="padding-top: 1.5rem; border-top: 1px solid rgba(217, 119, 87, 0.1);">
-            <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 0.5rem;">
-                <i class="bi bi-info-circle"></i> Default Credentials
-            </p>
-            <p style="color: #64748b; font-size: 0.9rem;">
-                Username: <strong style="color: #1e293b;">admin</strong> | 
-                Password: <strong style="color: #1e293b;">admin123</strong>
-            </p>
-        </div>
-
-        <div class="text-center mt-3" style="display: flex; flex-direction: column; gap: 0.5rem;">
-            <a href="{{ url_for('register') }}" style="color: #d97757; text-decoration: none; font-size: 0.9rem; font-weight: 500;">
-                <i class="bi bi-person-plus"></i> Register New Visitor
-            </a>
-            <a href="{{ url_for('book_appointment') }}" style="color: #d97757; text-decoration: none; font-size: 0.9rem; font-weight: 500;">
-                <i class="bi bi-calendar-check"></i> Book an Appointment
+            <a href="{{ url_for('home') }}" class="back-link">
+                <i class="bi bi-arrow-left"></i> Back to Home
             </a>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Password Toggle Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        if (togglePassword && passwordInput && toggleIcon) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle icon
+                if (type === 'password') {
+                    toggleIcon.classList.remove('bi-eye-slash');
+                    toggleIcon.classList.add('bi-eye');
+                } else {
+                    toggleIcon.classList.remove('bi-eye');
+                    toggleIcon.classList.add('bi-eye-slash');
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

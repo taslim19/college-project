@@ -24,7 +24,7 @@ app.secret_key = 'your-secret-key-change-in-production'  # Change this in produc
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': '',  # Update with your MySQL password
+    'password': '@lenovo@2k05',  # Update with your MySQL password
     'database': 'visitor_management'
 }
 
@@ -237,6 +237,17 @@ def register():
                 )
                 conn.commit()
                 visitor_id = cursor.lastrowid
+                
+                # Store visitor data in session for badge display
+                session['last_visitor'] = {
+                    'visitor_id': visitor_id,
+                    'name': name,
+                    'contact': contact,
+                    'person_to_meet': person_to_meet,
+                    'purpose': purpose,
+                    'check_in_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                
                 cursor.close()
                 conn.close()
                 
@@ -245,7 +256,10 @@ def register():
             except Error as e:
                 flash(f'Error registering visitor: {str(e)}', 'error')
         
-    return render_template('register.html')
+    # Get visitor data from session if it exists (for badge display)
+    visitor_data = session.pop('last_visitor', None)
+    
+    return render_template('register.html', visitor_data=visitor_data)
 
 
 # ==================== CHECK-IN SYSTEM ====================
@@ -346,6 +360,47 @@ def checkout():
     return render_template('checkout.html')
 
 
+@app.route('/quick-checkout/<int:visitor_id>')
+@login_required
+def quick_checkout(visitor_id):
+    """
+    Quick checkout route for dashboard action buttons.
+    Checks out a visitor directly and redirects back to dashboard.
+    """
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor(dictionary=True)
+        # Check if visitor exists
+        cursor.execute(
+            "SELECT * FROM visitors WHERE visitor_id = %s",
+            (visitor_id,)
+        )
+        visitor = cursor.fetchone()
+        
+        if visitor:
+            # Check if already checked out
+            if visitor['status'] == 'EXITED':
+                flash('Visitor has already checked out', 'warning')
+            elif visitor['status'] == 'INSIDE':
+                # Update check-out
+                cursor.execute(
+                    """UPDATE visitors SET check_out_time = %s, status = 'EXITED' 
+                       WHERE visitor_id = %s""",
+                    (datetime.now(), visitor_id)
+                )
+                conn.commit()
+                flash(f'Visitor {visitor["name"]} checked out successfully!', 'success')
+            else:
+                flash('Visitor needs to check in first', 'error')
+        else:
+            flash('Visitor ID not found', 'error')
+        
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('dashboard'))
+
+
 # ==================== ADMIN DASHBOARD ====================
 
 @app.route('/dashboard')
@@ -389,13 +444,21 @@ def dashboard():
         )
         recent_visitors = cursor.fetchall()
         
+        # Get pending appointments count
+        cursor.execute(
+            """SELECT COUNT(*) as count FROM appointments 
+               WHERE status = 'PENDING'"""
+        )
+        pending_appointments = cursor.fetchone()['count']
+        
         cursor.close()
         conn.close()
     
     return render_template('dashboard.html', 
                          visitors_inside=visitors_inside,
                          total_today=total_today,
-                         recent_visitors=recent_visitors)
+                         recent_visitors=recent_visitors,
+                         pending_appointments=pending_appointments)
 
 
 # ==================== REPORTS MODULE ====================

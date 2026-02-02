@@ -102,6 +102,35 @@
             color: #d97757;
         }
 
+        /* GitHub Button */
+        .github-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #1e293b;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .github-button:hover {
+            background: #333;
+            color: white;
+            border-color: #333;
+            transform: translateY(-1px);
+        }
+
+        .github-button i {
+            font-size: 1.1rem;
+        }
+
         /* Main Content */
         .landing-content {
             position: relative;
@@ -148,9 +177,13 @@
             gap: 2rem;
             max-width: 800px;
             margin: 0 auto;
+            align-items: stretch;
         }
 
         .action-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -231,33 +264,41 @@
             color: #64748b;
             margin-bottom: 2rem;
             line-height: 1.6;
+            flex-grow: 1;
         }
 
         .card-button {
-            display: inline-block;
-            padding: 14px 32px;
-            background: linear-gradient(135deg, #d97757, #ffc3a0);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: fit-content;
+            max-width: 80%;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #fdba74, #fb923c);
             color: white;
             text-decoration: none;
-            border-radius: 12px;
+            border-radius: 50px;
             font-weight: 600;
             font-size: 1rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(217, 119, 87, 0.3);
+            box-shadow: 0 4px 15px rgba(251, 146, 60, 0.25);
+            margin-top: auto;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .card-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(217, 119, 87, 0.4);
+            box-shadow: 0 6px 20px rgba(251, 146, 60, 0.35);
         }
 
         .admin-card .card-button {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            box-shadow: 0 4px 15px rgba(129, 140, 248, 0.25);
         }
 
         .admin-card .card-button:hover {
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 6px 20px rgba(129, 140, 248, 0.35);
         }
 
         /* Responsive Design */
@@ -313,10 +354,10 @@
     <!-- Top Navbar -->
     <nav class="landing-navbar">
         <div class="logo">
-            <i class="bi bi-person-badge"></i> VistaPass
+            <i class="bi bi-person-badge"></i> EntryFlow
         </div>
-        <a href="#" class="nav-link">
-            <i class="bi bi-headset"></i> Contact Support
+        <a href="https://github.com/taslim19/college-project" class="github-button" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-github"></i> View on GitHub
         </a>
     </nav>
 
@@ -347,13 +388,13 @@
 
                 <!-- Visitor Card -->
                 <div class="action-card visitor-card">
-                    <i class="bi bi-person-plus card-icon"></i>
-                    <h2 class="card-title">FastPass Portal</h2>
+                    <i class="bi bi-stars card-icon"></i>
+                    <h2 class="card-title">Guest Concierge</h2>
                     <p class="card-description">
-                        Quick self check-in for visitors. Register your visit or book an appointment in advance.
+                        Experience a seamless welcome. Check in instantly or schedule your arrival in seconds.
                     </p>
                     <a href="{{ url_for('register') }}" class="card-button">
-                        <i class="bi bi-person-check"></i> Self Check-In
+                        <i class="bi bi-person-check"></i> Start Experience
                     </a>
                 </div>
             </div>
